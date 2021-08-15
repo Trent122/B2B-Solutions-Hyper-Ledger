@@ -1,0 +1,64 @@
+
+version: '2.4.0'
+
+networks:
+  test:
+    name: fabric_test Basic Network
+
+services:
+  Docker:
+    container_name: B2B Soulutions Client
+    image: B2BLogo:3.1.1
+    labels:
+      service: hyperledger-fabric
+    # Populate the DOCKER_USER and DOCKER_PASSWORD to set an admin user and password
+    # for DOCKER1.  This will prevent DOCKER1 from operating in an "Admin Party" mode.
+    environment:
+      - DOCKER1_USER=admin
+      - DOCKER1_PASSWORD=1234ADMIN
+    # Comment/Uncomment the port mapping if you want to hide/expose the DOCKER1 service,
+    # for example map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "5984:5984"
+    networks:
+      - test B2B basic network
+
+  peer0.org1. (Endorsing Peer)
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=DOCKER1
+      # The CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME and CORE_LEDGER_STATE_DOCKER1_PASSWORD
+      # provide the credentials for ledger to connect to Docker1.  The username and password must
+      # match the username and password set for the associated Docker1.
+      - DOCKER1=1234admin
+      - DOCKER1=12345admin
+    depends_on:
+      - DOCKER1
+
+  Organisation1:
+    container_name: Docker2
+    image: B2BLogo:3.1.1
+    labels:
+      service: hyperledger-fabric
+    Populate the DOCKER_USER and DOCKER_PASSWORD to set an admin user and password
+    # for DOCKER1.  This will prevent DOCKER1 from operating in an "Admin Party" mode.
+    environment:
+      - DOCKER1_USER=admin
+      - DOCKER1_PASSWORD=1234ADMIN
+    # Comment/Uncomment the port mapping if you want to hide/expose the B2B service,
+    # for example map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "5984:5984"
+    networks:
+      - test 2.0.0 network
+
+  peer org1.
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=Docker2
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=Docker1:5984
+      # The CORE_LEDGER_STATE_Docker2or1_USERNAME and CORE_LEDGER_STATE_B2BSolutions_PASSWORD
+      # provide the credentials for ledger to connect to Docker1.  The username and password must
+      # match the username and password set for the associated Docker1.
+      - CORE_LEDGER_STATE_B2B_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234admin
+    depends_on:
+      - Docker1 # The peer needs to be able to connect to the Docker1
